@@ -1,0 +1,7 @@
+PowerWatch is a full-stack web application designed to streamline the reporting and monitoring of electricity-related issues in real-time. Built using the MERN (MongoDB, Express.js, React, Node.js) stack, this system allows users to easily submit complaints about power outages or related problems, while enabling administrators to manage, resolve, and update complaint statuses from a dedicated admin panel.
+
+The application features secure user authentication with session handling and role-based access control. Regular users can log in, submit complaints with detailed information such as name, address, phone number, time of issue, and problem description, and view updates on their submissions. Administrators, on the other hand, can view all user complaints, mark them as resolved, and post system-wide notifications to keep users informed.
+
+PowerWatch offers a clean and responsive interface, ensuring seamless usability across both desktop and mobile devices. With integrated middleware for route protection and role checking, it ensures data integrity and prevents unauthorized access. The backend is powered by Express and MongoDB, ensuring fast and scalable data handling, while the frontend provides an interactive UI built in React.
+
+Whether it’s for a local electricity board, housing society, or campus, PowerWatch serves as a powerful utility tool to improve communication, accountability, and transparency in electricity management.
