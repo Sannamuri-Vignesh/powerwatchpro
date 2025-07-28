@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel | PowerWatch</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">⚡ PowerWatch</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="report.html">Report</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="admin.html" class="active">Admin</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="admin-panel">
+    <h2>📋 All Submitted Reports</h2>
+    <div id="auth-message"></div>
+    <table id="report-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Location</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="report-table-body"></tbody>
+    </table>
+  </main>
+
+  <script>
+    async function checkAdminSession() {
+      try {
+        const res = await fetch('/api/auth/check-session', {
+          credentials: 'include'
+        });
+        
+        const { authenticated, user } = await res.json();
+        
+        if (!authenticated || user?.role !== 'admin') {
+          throw new Error('Admin access required');
+        }
+        
+        return true;
+      } catch (err) {
+        console.error('Session check failed:', err);
+        alert('Please login as admin');
+        window.location.href = 'login.html';
+        return false;
+      }
+    }
+
+    async function loadReports() {
+      try {
+        const res = await fetch('/api/reports', {
+          credentials: 'include'
+        });
+        
+        const reports = await res.json();
+        
+        const tableBody = document.getElementById('report-table-body');
+        tableBody.innerHTML = reports.map(report => `
+          <tr>
+            <td>${report.title}</td>
+            <td>${report.location}</td>
+            <td>${report.description}</td>
+            <td>
+              ${report.status}<br>
+              <select onchange="updateStatus('${report._id}', this.value)">
+                <option value="">Change Status</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </td>
+            <td>${new Date(report.createdAt).toLocaleString()}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('Failed to load reports:', err);
+        document.getElementById('auth-message').textContent = 'Failed to load reports';
+      }
+    }
+
+    async function updateStatus(reportId, status) {
+      if (!status) return;
+      
+      try {
+        await fetch(`/api/reports/${reportId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ status })
+        });
+        
+        loadReports();
+      } catch (err) {
+        console.error('Update failed:', err);
+        alert('Failed to update status');
+      }
+    }
+
+    // Initialize
+    (async () => {
+      const isAdmin = await checkAdminSession();
+      if (isAdmin) loadReports();
+    })();
+  </script>
+</body>
+</html>
